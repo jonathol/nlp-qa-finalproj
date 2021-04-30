@@ -439,41 +439,17 @@ def write_predictions(args, model, dataset):
                 # Unpack start and end probabilities. Find the constrained
                 # (start, end) pair that has the highest joint probability.
                 start_probs = unpack(batch_start_probs[j])
-                end_probs = unpack(batch_end_probs[j])
-
-                if args.task == 1:
-                    # differenct score calculation
-                    start_indexes = np.argsort(start_probs)[-1 : -n_best_size - 1 : -1].tolist()
-                    end_indexes = np.argsort(end_probs)[-1 : -n_best_size - 1 : -1].tolist()
-                    for start_index in start_indexes:
-                        for end_index in end_indexes:                            
-                            # Don't consider answers with a length that is either < 0 or > max_answer_length.
-                            if end_index < start_index or end_index - start_index + 1 > max_answer_length:
-                                continue
-                            
-                            valid_answers.append(
-                                {
-                                    "score": start_logits[start_index] + end_logits[end_index],
-                                    "text": ' '.join(passage[start_index:(end_index + 1)])
-                                }
-                            )
-
-                    best_answer = sorted(valid_answers, key=lambda x: x["score"], reverse=True)[0]
-                    outputs.append({'qid': qid, 'answer': best_answer["text"]})
-
-
-
-                else:
+                end_probs = unpack(batch_end_probs[j])                
                    
-                    start_index, end_index = search_span_endpoints(
-                            start_probs, end_probs
-                    )
-                    
-                    # Grab predicted span.
-                    pred_span = ' '.join(passage[start_index:(end_index + 1)])
+                start_index, end_index = search_span_endpoints(
+                        start_probs, end_probs, args
+                )
+                
+                # Grab predicted span.
+                pred_span = ' '.join(passage[start_index:(end_index + 1)])
 
-                    # Add prediction to outputs.
-                    outputs.append({'qid': qid, 'answer': pred_span})
+                # Add prediction to outputs.
+                outputs.append({'qid': qid, 'answer': pred_span})
 
     # Write predictions to output file.
     with open(args.output_path, 'w+') as f:
