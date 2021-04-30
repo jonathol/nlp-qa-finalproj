@@ -36,6 +36,11 @@ from data import QADataset, Tokenizer, Vocabulary
 from model import BaselineReader
 from utils import cuda, search_span_endpoints, unpack
 
+# Task 1 stuff 
+import spacy
+nlp = spacy.load("en_core_web_sm")
+from gensim.summarization.bm25 import BM25
+
 
 _TQDM_BAR_SIZE = 75
 _TQDM_LEAVE = False
@@ -417,10 +422,8 @@ def write_predictions(args, model, dataset):
     outputs = []
 
     # Task 1 stuff 
-    n_best_size = 20
-    max_answer_length = 30
-    valid_answers = []
-
+    keep = {'PROPN', 'NUM', 'VERB', 'NOUN', 'ADJ'}
+    tokenize = lambda text: [token.lemma_ for token in nlp(text)]
 
     with torch.no_grad():
         for (i, batch) in enumerate(test_dataloader):
@@ -436,20 +439,39 @@ def write_predictions(args, model, dataset):
                 sample_index = args.batch_size * i + j
                 qid, passage, question, _, _ = dataset.samples[sample_index]
 
-                # Unpack start and end probabilities. Find the constrained
-                # (start, end) pair that has the highest joint probability.
-                start_probs = unpack(batch_start_probs[j])
-                end_probs = unpack(batch_end_probs[j])                
-                   
-                start_index, end_index = search_span_endpoints(
-                        start_probs, end_probs, args
-                )
-                
-                # Grab predicted span.
-                pred_span = ' '.join(passage[start_index:(end_index + 1)])
+                if args.task == 1:
+                    doc = nlp(question)
+                    query = ' '.join(token.text for token in doc if token.pos_ in self.keep)
+                    print(query)
+                    passages = [p for p in docs[0].split('\n') if p and not p.startswith('=')]
+                    print(passages)
+                    docs = [passages]
+                    print(docs)
+                    corpus = [tokenize(p) for p in passages]
+                    print(corpus)
+                    bm25 = BM25(corpus)
+                    tokens = tokenize(question)
+                    scores = bm25.get_scores(tokens)
+                    pairs = [(s, i) for i, s in enumerate(scores)]
+                    pairs.sort(reverse=True)
+                    passages = [passages[i] for _, i in pairs[:topn]]
+                    print(passages)
+                    a
+                else:
+                    # Unpack start and end probabilities. Find the constrained
+                    # (start, end) pair that has the highest joint probability.
+                    start_probs = unpack(batch_start_probs[j])
+                    end_probs = unpack(batch_end_probs[j])                
+                       
+                    start_index, end_index = search_span_endpoints(
+                            start_probs, end_probs
+                    )
+                    
+                    # Grab predicted span.
+                    pred_span = ' '.join(passage[start_index:(end_index + 1)])
 
-                # Add prediction to outputs.
-                outputs.append({'qid': qid, 'answer': pred_span})
+                    # Add prediction to outputs.
+                    outputs.append({'qid': qid, 'answer': pred_span})
 
     # Write predictions to output file.
     with open(args.output_path, 'w+') as f:
