@@ -440,9 +440,9 @@ def write_predictions(args, model, dataset):
                 qid, passage, question, _, _ = dataset.samples[sample_index]
 
                 # Unpack start and end probabilities. Find the constrained
-                    # (start, end) pair that has the highest joint probability.
-                    start_probs = unpack(batch_start_probs[j])
-                    end_probs = unpack(batch_end_probs[j])
+                # (start, end) pair that has the highest joint probability.
+                start_probs = unpack(batch_start_probs[j])
+                end_probs = unpack(batch_end_probs[j])
 
                 if args.task == 1:
                     # differenct score calculation
