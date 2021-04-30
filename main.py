@@ -443,8 +443,8 @@ def write_predictions(args, model, dataset):
 
                 if args.task == 1:
                     # differenct score calculation
-                    start_indexes = np.argsort(start_logits)[-1 : -n_best_size - 1 : -1].tolist()
-                    end_indexes = np.argsort(end_logits)[-1 : -n_best_size - 1 : -1].tolist()
+                    start_indexes = np.argsort(start_probs)[-1 : -n_best_size - 1 : -1].tolist()
+                    end_indexes = np.argsort(end_probs)[-1 : -n_best_size - 1 : -1].tolist()
                     for start_index in start_indexes:
                         for end_index in end_indexes:                            
                             # Don't consider answers with a length that is either < 0 or > max_answer_length.
