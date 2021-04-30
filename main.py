@@ -36,6 +36,9 @@ from data import QADataset, Tokenizer, Vocabulary
 from model import BaselineReader
 from utils import cuda, search_span_endpoints, unpack
 
+import spacy
+nlp = spacy.load(SPACY_MODEL, disable=['ner', 'parser', 'textcat'])
+
 
 _TQDM_BAR_SIZE = 75
 _TQDM_LEAVE = False
@@ -193,6 +196,13 @@ parser.add_argument(
     default=0.,
     help='dropout on passage and question vectors',
 )
+
+# custom argument
+parser.add_argument(
+    '--task',
+    type=int,
+    default=0,
+    help='select task #')
 
 
 def _print_arguments(args):
@@ -409,6 +419,12 @@ def write_predictions(args, model, dataset):
     # Output predictions.
     outputs = []
 
+    # Task 1 stuff 
+    n_best_size = 20
+    max_answer_length = 30
+    valid_answers = []
+
+
     with torch.no_grad():
         for (i, batch) in enumerate(test_dataloader):
             # Forward inputs.
@@ -421,21 +437,46 @@ def write_predictions(args, model, dataset):
             for j in range(start_logits.size(0)):
                 # Find question index and passage.
                 sample_index = args.batch_size * i + j
-                qid, passage, _, _, _ = dataset.samples[sample_index]
+                qid, passage, question, _, _ = dataset.samples[sample_index]
 
                 # Unpack start and end probabilities. Find the constrained
-                # (start, end) pair that has the highest joint probability.
-                start_probs = unpack(batch_start_probs[j])
-                end_probs = unpack(batch_end_probs[j])
-                start_index, end_index = search_span_endpoints(
-                        start_probs, end_probs
-                )
-                
-                # Grab predicted span.
-                pred_span = ' '.join(passage[start_index:(end_index + 1)])
+                    # (start, end) pair that has the highest joint probability.
+                    start_probs = unpack(batch_start_probs[j])
+                    end_probs = unpack(batch_end_probs[j])
 
-                # Add prediction to outputs.
-                outputs.append({'qid': qid, 'answer': pred_span})
+                if args.task == 1:
+                    # differenct score calculation
+                    start_indexes = np.argsort(start_logits)[-1 : -n_best_size - 1 : -1].tolist()
+                    end_indexes = np.argsort(end_logits)[-1 : -n_best_size - 1 : -1].tolist()
+                    for start_index in start_indexes:
+                        for end_index in end_indexes:                            
+                            # Don't consider answers with a length that is either < 0 or > max_answer_length.
+                            if end_index < start_index or end_index - start_index + 1 > max_answer_length:
+                                continue
+                            
+                            valid_answers.append(
+                                {
+                                    "score": start_logits[start_index] + end_logits[end_index],
+                                    "text": ' '.join(passage[start_index:(end_index + 1)])
+                                }
+                            )
+
+                    best_answer = sorted(valid_answers, key=lambda x: x["score"], reverse=True)[0]
+                    outputs.append({'qid': qid, 'answer': best_answer["text"]})
+
+
+
+                else:
+                   
+                    start_index, end_index = search_span_endpoints(
+                            start_probs, end_probs
+                    )
+                    
+                    # Grab predicted span.
+                    pred_span = ' '.join(passage[start_index:(end_index + 1)])
+
+                    # Add prediction to outputs.
+                    outputs.append({'qid': qid, 'answer': pred_span})
 
     # Write predictions to output file.
     with open(args.output_path, 'w+') as f:
