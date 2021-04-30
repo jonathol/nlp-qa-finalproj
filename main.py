@@ -437,16 +437,16 @@ def write_predictions(args, model, dataset):
             for j in range(start_logits.size(0)):
                 # Find question index and passage.
                 sample_index = args.batch_size * i + j
-                qid, passage, question, _, _ = dataset.samples[sample_index]
+                qid, context, question, _, _ = dataset.samples[sample_index]
 
                 if args.task == 1:
                     doc = nlp(' '.join(question))
                     query = ' '.join(token.text for token in doc if token.pos_ in keep)
                     print(query)
-                    passages = [p for p in docs[0].split('\n') if p and not p.startswith('=')]
-                    print(passages)
-                    docs = [passages]
+                    docs = [context]
                     print(docs)
+                    passages = [p for p in docs[0].split('\n') if p and not p.startswith('=')]
+                    print(passages)                    
                     corpus = [tokenize(p) for p in passages]
                     print(corpus)
                     bm25 = BM25(corpus)
