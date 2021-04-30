@@ -36,9 +36,6 @@ from data import QADataset, Tokenizer, Vocabulary
 from model import BaselineReader
 from utils import cuda, search_span_endpoints, unpack
 
-import spacy
-nlp = spacy.load(SPACY_MODEL, disable=['ner', 'parser', 'textcat'])
-
 
 _TQDM_BAR_SIZE = 75
 _TQDM_LEAVE = False
