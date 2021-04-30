@@ -440,7 +440,7 @@ def write_predictions(args, model, dataset):
                 qid, passage, question, _, _ = dataset.samples[sample_index]
 
                 if args.task == 1:
-                    doc = nlp(question)
+                    doc = nlp(' '.join(question))
                     query = ' '.join(token.text for token in doc if token.pos_ in self.keep)
                     print(query)
                     passages = [p for p in docs[0].split('\n') if p and not p.startswith('=')]
