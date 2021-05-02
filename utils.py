@@ -151,7 +151,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
                 matches = matcher(doc)
                 count = len(matches)
                 joint_prob = start_probs[max_start_index] * end_probs[end_index]
-                if count >= max_count && joint_prob > max_joint_prob:
+                if count >= max_count and joint_prob > max_joint_prob:
                     max_joint_prob = joint_prob
                     max_count = count
                     max_end_index = end_index
