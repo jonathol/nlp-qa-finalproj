@@ -140,11 +140,11 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
         print()
         print(args.task)
         print(' '.join(context))
-        print("Answer: ", ' '.join(context[ans_start: ans_end+1]))
 
-        keep = {'PROPN', 'NUM', 'VERB', 'NOUN', 'ADJ'}
+        keep = {'PROPN', 'NUM', 'VERB', 'NOUN'}
         q = ' '.join(question)  
-        print(q)      
+        print(q)    
+        print("Answer: ", ' '.join(context[ans_start: ans_end+1]))  
         q = nlp(q)
         query = [token.text for token in q if token.pos_ in keep]
         print(query)
@@ -152,17 +152,30 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
         patterns = [nlp.make_doc(text) for text in query]
         matcher.add("AnswerList", patterns)
 
-        for end_index in range(len(end_probs)):
-            if max_start_index <= end_index <= max_start_index + window:
-                span = ' '.join(context[max_start_index:(end_index + 1)])
-                doc = nlp(span)
-                matches = matcher(doc)
-                count = len(matches)
-                joint_prob = start_probs[max_start_index] * end_probs[end_index]
-                if count >= max_count and joint_prob > max_joint_prob:
-                    max_joint_prob = joint_prob
-                    max_count = count
-                    max_end_index = end_index
+        document = nlp(context)
+        start_matches = matcher(document)
+
+        start_idxs = []
+
+        for matches, m_idx_start, m_idx_stop in matches:
+            start_idxs.append(m_idx_stop+1)
+
+        if len(start_idxs) < 1:
+            start_idxs[max_start_index]
+
+
+        for s_idx in start_idxs:
+            for end_index in range(len(end_probs)):
+                if s_idx <= end_index <= s_idx + window:
+                    span = ' '.join(context[s_idx:(end_index + 1)])
+                    print(span)
+                    doc = nlp(span)
+                    matches = matcher(doc)
+                    joint_prob = start_probs[s_idx] * end_probs[end_index]
+                    if joint_prob > max_joint_prob:
+                        max_joint_prob = joint_prob
+                        max_end_index = end_index
+                        max_start_index = s_idx
     else :        
         for end_index in range(len(end_probs)):
             if max_start_index <= end_index <= max_start_index + window:
