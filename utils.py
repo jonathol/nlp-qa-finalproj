@@ -111,7 +111,7 @@ def load_embeddings(path):
     return embedding_map
 
 
-def search_span_endpoints(start_probs, end_probs, args, context, question, window=15):
+def search_span_endpoints(start_probs, end_probs, args, context, question, ans_start, ans_end, window=15):
     """
     Finds an optimal answer span given start and end probabilities.
     Specifically, this algorithm finds the optimal start probability p_s, then
@@ -133,7 +133,9 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
     max_start_index = start_probs.index(max(start_probs))
     max_end_index = -1
     max_joint_prob = 0.
+    print()
     print(' '.join(context))
+    print("Answer: ", ' '.join(context[ans_start: ans_end+1]))
 
 
     if args.task == 1:
