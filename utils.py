@@ -152,7 +152,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
         patterns = [nlp.make_doc(text) for text in query]
         matcher.add("AnswerList", patterns)
 
-        document = nlp(context)
+        document = nlp(' '.join(context))
         start_matches = matcher(document)
 
         start_idxs = []
