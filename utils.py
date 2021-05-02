@@ -179,6 +179,10 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
                         max_joint_prob = joint_prob
                         max_end_index = end_index
                         max_start_index = s_idx
+
+        if args.task == 1:
+        print("My Answer: ", context[max_start_index:(max_end_index + 1)])
+        a
     else :        
         for end_index in range(len(end_probs)):
             if max_start_index <= end_index <= max_start_index + window:
@@ -186,9 +190,9 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
                 if joint_prob > max_joint_prob:
                     max_joint_prob = joint_prob
                     max_end_index = end_index
-
-    if args.task == 1:
         print("My Answer: ", context[max_start_index:(max_end_index + 1)])
-        a
+
+
+    
 
     return (max_start_index, max_end_index)
