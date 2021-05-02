@@ -157,7 +157,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
 
         start_idxs = []
 
-        for matches, m_idx_start, m_idx_stop in matches:
+        for m, m_idx_start, m_idx_stop in start_matches:
             start_idxs.append(m_idx_stop+1)
 
         if len(start_idxs) < 1:
