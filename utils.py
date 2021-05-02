@@ -172,8 +172,6 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
                 if s_idx <= end_index <= s_idx + window:
                     span = ' '.join(context[s_idx:(end_index + 1)])
                     print(span)
-                    doc = nlp(span)
-                    matches = matcher(doc)
                     joint_prob = start_probs[s_idx] * end_probs[end_index]
                     if joint_prob > max_joint_prob:
                         max_joint_prob = joint_prob
