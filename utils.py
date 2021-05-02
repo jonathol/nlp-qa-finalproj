@@ -133,7 +133,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
     max_start_index = start_probs.index(max(start_probs))
     max_end_index = -1
     max_joint_prob = 0.
-    print(context)
+    print(' '.join(context))
 
 
     if args.task == 1:
