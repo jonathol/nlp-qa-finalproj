@@ -36,11 +36,6 @@ from data import QADataset, Tokenizer, Vocabulary
 from model import BaselineReader
 from utils import cuda, search_span_endpoints, unpack
 
-# Task 1 stuff 
-import spacy
-nlp = spacy.load("en_core_web_sm")
-from gensim.summarization.bm25 import BM25
-
 
 _TQDM_BAR_SIZE = 75
 _TQDM_LEAVE = False
@@ -445,11 +440,11 @@ def write_predictions(args, model, dataset):
                 end_probs = unpack(batch_end_probs[j])                
                    
                 start_index, end_index = search_span_endpoints(
-                        start_probs, end_probs, args, passage
+                        start_probs, end_probs, args, context, question
                 )
                 
                 # Grab predicted span.
-                pred_span = ' '.join(passage[start_index:(end_index + 1)])
+                pred_span = ' '.join(context[start_index:(end_index + 1)])
 
                 # Add prediction to outputs.
                 outputs.append({'qid': qid, 'answer': pred_span})

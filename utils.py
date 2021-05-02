@@ -12,6 +12,10 @@ import pickle
 import torch
 from tqdm import tqdm
 
+# Task 1 stuff 
+import spacy
+nlp = spacy.load("en_core_web_sm")
+
 
 def cuda(args, tensor):
     """
@@ -105,7 +109,7 @@ def load_embeddings(path):
     return embedding_map
 
 
-def search_span_endpoints(start_probs, end_probs, args, passage, window=15):
+def search_span_endpoints(start_probs, end_probs, args, context, question, window=15):
     """
     Finds an optimal answer span given start and end probabilities.
     Specifically, this algorithm finds the optimal start probability p_s, then
@@ -125,7 +129,12 @@ def search_span_endpoints(start_probs, end_probs, args, passage, window=15):
         chosen end index is *inclusive*.
     """
     if args.task == 1:
-        print(passage)
+        keep = {'PROPN', 'NUM', 'VERB', 'NOUN', 'ADJ'}
+        q = ' '.join(question)
+        doc = nlp(q)
+        query = ' '.join(token.text for token in doc if token.pos_ in keep)
+        print(q)
+        print(query)
         a
 
     max_start_index = start_probs.index(max(start_probs))
