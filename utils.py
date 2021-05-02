@@ -155,7 +155,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
         document = nlp(' '.join(context))
         start_matches = matcher(document)
 
-        start_idxs = [max_start_inde]
+        start_idxs = [max_start_index]
 
         for m, m_idx_start, m_idx_stop in start_matches:
             if m_idx_stop + 15 > len(end_probs)-1:
