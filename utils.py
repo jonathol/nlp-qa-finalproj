@@ -137,9 +137,11 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
 
     if args.task == 1:
         keep = {'PROPN', 'NUM', 'VERB', 'NOUN', 'ADJ'}
-        q = ' '.join(question)        
+        q = ' '.join(question)  
+        print(q)      
         q = nlp(q)
         query = [token.text for token in q if token.pos_ in keep]
+        print(query)
         max_count = 0
         patterns = [nlp.make_doc(text) for text in query]
         matcher.add("AnswerList", patterns)
@@ -147,6 +149,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
         for end_index in range(len(end_probs)):
             if max_start_index <= end_index <= max_start_index + window:
                 span = ' '.join(context[max_start_index:(end_index + 1)])
+                print(span)
                 doc = nlp(span)
                 matches = matcher(doc)
                 count = len(matches)
@@ -155,6 +158,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
                     max_joint_prob = joint_prob
                     max_count = count
                     max_end_index = end_index
+        a
     else :        
         for end_index in range(len(end_probs)):
             if max_start_index <= end_index <= max_start_index + window:
