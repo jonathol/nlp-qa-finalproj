@@ -15,6 +15,8 @@ from tqdm import tqdm
 # Task 1 stuff 
 import spacy
 nlp = spacy.load("en_core_web_sm")
+from spacy.matcher import PhraseMatcher
+matcher = PhraseMatcher(nlp.vocab)
 
 
 def cuda(args, tensor):
@@ -128,24 +130,34 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
         Optimal starting and ending indices for the answer span. Note that the
         chosen end index is *inclusive*.
     """
-    if args.task == 1:
-        keep = {'PROPN', 'NUM', 'VERB', 'NOUN', 'ADJ'}
-        q = ' '.join(question)
-        doc = nlp(q)
-        query = ' '.join(token.text for token in doc if token.pos_ in keep)
-        print(q)
-        print(query)
-        a
-
     max_start_index = start_probs.index(max(start_probs))
     max_end_index = -1
-    max_joint_prob = 0.
 
-    for end_index in range(len(end_probs)):
-        if max_start_index <= end_index <= max_start_index + window:
-            joint_prob = start_probs[max_start_index] * end_probs[end_index]
-            if joint_prob > max_joint_prob:
-                max_joint_prob = joint_prob
-                max_end_index = end_index
+    if args.task == 1:
+        keep = {'PROPN', 'NUM', 'VERB', 'NOUN', 'ADJ'}
+        q = ' '.join(question)        
+        q = nlp(q)
+        query = [token.text for token in q if token.pos_ in keep]
+        max_count = 0
+        patterns = [nlp.make_doc(text) for text in query]
+        matcher.add("AnswerList", patterns)
+
+        for end_index in range(len(end_probs)):
+            if max_start_index <= end_index <= max_start_index + window:
+                span = context[max_start_index:(end_index + 1)]
+                doc = nlp(span)
+                matches = matcher(doc)
+                count = len(matches)
+                if count > max_count:
+                    max_count = count
+                    max_end_index = end_index
+    else :        
+        max_joint_prob = 0.
+        for end_index in range(len(end_probs)):
+            if max_start_index <= end_index <= max_start_index + window:
+                joint_prob = start_probs[max_start_index] * end_probs[end_index]
+                if joint_prob > max_joint_prob:
+                    max_joint_prob = joint_prob
+                    max_end_index = end_index
 
     return (max_start_index, max_end_index)
