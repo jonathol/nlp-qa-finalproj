@@ -439,39 +439,20 @@ def write_predictions(args, model, dataset):
                 sample_index = args.batch_size * i + j
                 qid, context, question, _, _ = dataset.samples[sample_index]
 
-                if args.task == 1:
-                    doc = nlp(' '.join(question))
-                    query = ' '.join(token.text for token in doc if token.pos_ in keep)
-                    print(query)
-                    docs = [context]
-                    print(docs)
-                    passages = [p for p in docs[0].split('\n') if p and not p.startswith('=')]
-                    print(passages)                    
-                    corpus = [tokenize(p) for p in passages]
-                    print(corpus)
-                    bm25 = BM25(corpus)
-                    tokens = tokenize(question)
-                    scores = bm25.get_scores(tokens)
-                    pairs = [(s, i) for i, s in enumerate(scores)]
-                    pairs.sort(reverse=True)
-                    passages = [passages[i] for _, i in pairs[:topn]]
-                    print(passages)
-                    a
-                else:
-                    # Unpack start and end probabilities. Find the constrained
-                    # (start, end) pair that has the highest joint probability.
-                    start_probs = unpack(batch_start_probs[j])
-                    end_probs = unpack(batch_end_probs[j])                
-                       
-                    start_index, end_index = search_span_endpoints(
-                            start_probs, end_probs
-                    )
-                    
-                    # Grab predicted span.
-                    pred_span = ' '.join(passage[start_index:(end_index + 1)])
+                # Unpack start and end probabilities. Find the constrained
+                # (start, end) pair that has the highest joint probability.
+                start_probs = unpack(batch_start_probs[j])
+                end_probs = unpack(batch_end_probs[j])                
+                   
+                start_index, end_index = search_span_endpoints(
+                        start_probs, end_probs, args, passage
+                )
+                
+                # Grab predicted span.
+                pred_span = ' '.join(passage[start_index:(end_index + 1)])
 
-                    # Add prediction to outputs.
-                    outputs.append({'qid': qid, 'answer': pred_span})
+                # Add prediction to outputs.
+                outputs.append({'qid': qid, 'answer': pred_span})
 
     # Write predictions to output file.
     with open(args.output_path, 'w+') as f:
