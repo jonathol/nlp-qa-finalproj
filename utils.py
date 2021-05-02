@@ -132,6 +132,8 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
     """
     max_start_index = start_probs.index(max(start_probs))
     max_end_index = -1
+    max_joint_prob = 0.
+
 
     if args.task == 1:
         keep = {'PROPN', 'NUM', 'VERB', 'NOUN', 'ADJ'}
@@ -148,11 +150,12 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
                 doc = nlp(span)
                 matches = matcher(doc)
                 count = len(matches)
-                if count > max_count:
+                joint_prob = start_probs[max_start_index] * end_probs[end_index]
+                if count >= max_count && joint_prob > max_joint_prob:
+                    max_joint_prob = joint_prob
                     max_count = count
                     max_end_index = end_index
     else :        
-        max_joint_prob = 0.
         for end_index in range(len(end_probs)):
             if max_start_index <= end_index <= max_start_index + window:
                 joint_prob = start_probs[max_start_index] * end_probs[end_index]
