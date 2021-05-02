@@ -144,7 +144,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, windo
 
         for end_index in range(len(end_probs)):
             if max_start_index <= end_index <= max_start_index + window:
-                span = context[max_start_index:(end_index + 1)]
+                span = ' '.join(context[max_start_index:(end_index + 1)])
                 doc = nlp(span)
                 matches = matcher(doc)
                 count = len(matches)
