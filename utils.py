@@ -141,7 +141,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
         print(args.task)
         print(' '.join(context))
 
-        keep = {'PROPN', 'NUM', 'VERB', 'NOUN'}
+        keep = {'PROPN', 'VERB', 'NOUN'}
         q = ' '.join(question)  
         print(q)    
         print("Answer: ", ' '.join(context[ans_start: ans_end+1]))  
@@ -175,7 +175,6 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
                         max_joint_prob = joint_prob
                         max_end_index = end_index
                         max_start_index = s_idx
-
         print("My Answer: ", context[max_start_index:(max_end_index + 1)])
         a
     else :        
@@ -185,6 +184,7 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
                 if joint_prob > max_joint_prob:
                     max_joint_prob = joint_prob
                     max_end_index = end_index
+        print()
         print("My Answer: ", context[max_start_index:(max_end_index + 1)])
         a
 
