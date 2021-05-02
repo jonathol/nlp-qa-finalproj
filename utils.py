@@ -180,7 +180,6 @@ def search_span_endpoints(start_probs, end_probs, args, context, question, ans_s
                         max_end_index = end_index
                         max_start_index = s_idx
 
-        if args.task == 1:
         print("My Answer: ", context[max_start_index:(max_end_index + 1)])
         a
     else :        
