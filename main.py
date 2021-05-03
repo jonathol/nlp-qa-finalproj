@@ -442,6 +442,7 @@ def write_predictions(args, model, dataset):
                 if args.task == 2:
                     question_answering = pipeline('question-answering')
                     result = question_answering(question=' '.join(question), context=' '.join(context))
+                    outputs.append({'qid': qid, 'answer': result['answer']})
                     print(result)
                     a
                 else:
