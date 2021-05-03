@@ -321,8 +321,8 @@ def train(args, epoch, model, dataset):
     if args.task == 3:
         elems = []
         for el in dataset.elems:
-            e = els 
-            e.context = aug.augment(els.context)
+            e = el 
+            e.context = aug.augment(el.context)
             elems.append(e)
         dataset.elems = elems
         train_dataloader = tqdm(
