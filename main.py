@@ -41,6 +41,7 @@ import transformers
 from transformers import pipeline
 
 # Task 3
+import random
 import nlpaug.augmenter.word as naw
 aug = naw.SynonymAug(aug_src='wordnet')
 
@@ -319,12 +320,13 @@ def train(args, epoch, model, dataset):
     )
 
     if args.task == 3:
-        elems = []
-        for el in dataset.elems:
-            e = el 
-            e["context"] = aug.augment(el["context"])
-            elems.append(e)
-        dataset.elems = elems
+        res = []
+        for j in range(5):
+            res.append(random.randint(0, len(dataset.elems)-1))
+        for r in res:
+            e = dataset.elems[r] 
+            e["context"] = aug.augment(e["context"])
+            dataset.elems[r] = e
         train_dataloader = tqdm(
             dataset.get_batch(shuffle_examples=args.shuffle_examples),
             **_TQDM_OPTIONS,
