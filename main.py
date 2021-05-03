@@ -316,7 +316,7 @@ def train(args, epoch, model, dataset):
     )
 
     if args.task == 3:
-        print(dataset.elems.context)
+        print(dataset.elems[1])
         a
 
     # Set up training dataloader. Creates `args.batch_size`-sized
