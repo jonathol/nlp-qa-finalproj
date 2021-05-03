@@ -315,6 +315,10 @@ def train(args, epoch, model, dataset):
         weight_decay=args.weight_decay,
     )
 
+    if args.task == 3:
+        print(dataset[0])
+        a
+
     # Set up training dataloader. Creates `args.batch_size`-sized
     # batches from available samples.
     train_dataloader = tqdm(
