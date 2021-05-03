@@ -322,7 +322,7 @@ def train(args, epoch, model, dataset):
         elems = []
         for el in dataset.elems:
             e = el 
-            e.context = aug.augment(el.context)
+            e["context"] = aug.augment(el["context"])
             elems.append(e)
         dataset.elems = elems
         train_dataloader = tqdm(
