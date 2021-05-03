@@ -37,6 +37,7 @@ from model import BaselineReader
 from utils import cuda, search_span_endpoints, unpack
 
 # Task 2
+import transformers
 from transformers import pipeline
 
 
