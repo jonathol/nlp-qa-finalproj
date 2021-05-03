@@ -424,6 +424,8 @@ def write_predictions(args, model, dataset):
     # Task 1 stuff 
     keep = {'PROPN', 'NUM', 'VERB', 'NOUN', 'ADJ'}
     tokenize = lambda text: [token.lemma_ for token in nlp(text)]
+    question_answering = pipeline('question-answering')
+
 
     with torch.no_grad():
         for (i, batch) in enumerate(test_dataloader):
@@ -440,7 +442,6 @@ def write_predictions(args, model, dataset):
                 qid, context, question, ans_start, ans_end = dataset.samples[sample_index]
 
                 if args.task == 2:
-                    question_answering = pipeline('question-answering')
                     result = question_answering(question=' '.join(question), context=' '.join(context))
                     outputs.append({'qid': qid, 'answer': result['answer']})
                 else:
