@@ -36,6 +36,10 @@ from data import QADataset, Tokenizer, Vocabulary
 from model import BaselineReader
 from utils import cuda, search_span_endpoints, unpack
 
+# Task 2
+from transformers import pipeline
+
+
 
 _TQDM_BAR_SIZE = 75
 _TQDM_LEAVE = False
@@ -434,20 +438,25 @@ def write_predictions(args, model, dataset):
                 sample_index = args.batch_size * i + j
                 qid, context, question, ans_start, ans_end = dataset.samples[sample_index]
 
-                # Unpack start and end probabilities. Find the constrained
-                # (start, end) pair that has the highest joint probability.
-                start_probs = unpack(batch_start_probs[j])
-                end_probs = unpack(batch_end_probs[j])                
-                   
-                start_index, end_index = search_span_endpoints(
-                        start_probs, end_probs, args, context, question, ans_start, ans_end
-                )
-                
-                # Grab predicted span.
-                pred_span = ' '.join(context[start_index:(end_index + 1)])
+                if args.task == 2:
+                    question_answering = pipeline('question-answering')
+                    result = question_answering(question=' '.join(question), context=' '.join(context))
+                    print(result)
+                else:
+                    # Unpack start and end probabilities. Find the constrained
+                    # (start, end) pair that has the highest joint probability.
+                    start_probs = unpack(batch_start_probs[j])
+                    end_probs = unpack(batch_end_probs[j])                
+                       
+                    start_index, end_index = search_span_endpoints(
+                            start_probs, end_probs, args, context, question, ans_start, ans_end
+                    )
+                    
+                    # Grab predicted span.
+                    pred_span = ' '.join(context[start_index:(end_index + 1)])
 
-                # Add prediction to outputs.
-                outputs.append({'qid': qid, 'answer': pred_span})
+                    # Add prediction to outputs.
+                    outputs.append({'qid': qid, 'answer': pred_span})
 
     # Write predictions to output file.
     with open(args.output_path, 'w+') as f:
