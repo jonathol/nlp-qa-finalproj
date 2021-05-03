@@ -42,7 +42,7 @@ from transformers import pipeline
 
 # Task 3
 import nlpaug.augmenter.word as naw
-aug = naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb-2.0-s-all')
+aug = naw.SynonymAug(aug_src='ppdb', model_path='ppdb-2.0-s-all')
 
 
 
