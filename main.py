@@ -443,6 +443,7 @@ def write_predictions(args, model, dataset):
                     question_answering = pipeline('question-answering')
                     result = question_answering(question=' '.join(question), context=' '.join(context))
                     print(result)
+                    a
                 else:
                     # Unpack start and end probabilities. Find the constrained
                     # (start, end) pair that has the highest joint probability.
