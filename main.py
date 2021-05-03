@@ -40,6 +40,11 @@ from utils import cuda, search_span_endpoints, unpack
 import transformers
 from transformers import pipeline
 
+# Task 3
+import nlpaug.augmenter.word as naw
+aug = naw.SynonymAug(aug_src='ppdb', model_path=os.environ.get("MODEL_DIR") + 'ppdb-2.0-s-all')
+
+
 
 
 _TQDM_BAR_SIZE = 75
@@ -316,15 +321,23 @@ def train(args, epoch, model, dataset):
     )
 
     if args.task == 3:
-        print(dataset.elems[1])
-        a
-
-    # Set up training dataloader. Creates `args.batch_size`-sized
-    # batches from available samples.
-    train_dataloader = tqdm(
-        dataset.get_batch(shuffle_examples=args.shuffle_examples),
-        **_TQDM_OPTIONS,
-    )
+        elems = []
+        for el in dataset.elems:
+            e = els 
+            e.context = aug.augment(els.context)
+            elems.append(e)
+        dataset.elems = elems
+        train_dataloader = tqdm(
+            dataset.get_batch(shuffle_examples=args.shuffle_examples),
+            **_TQDM_OPTIONS,
+        )
+    else:
+        # Set up training dataloader. Creates `args.batch_size`-sized
+        # batches from available samples.
+        train_dataloader = tqdm(
+            dataset.get_batch(shuffle_examples=args.shuffle_examples),
+            **_TQDM_OPTIONS,
+        )
 
     for batch in train_dataloader:
         # Zero gradients.
